@@ -1,0 +1,6 @@
+{
+    "cmake.configurePreset": "Debug",
+    "cmake.buildPreset": "Debug",
+    "C_Cpp.intelliSenseMode": "gcc-arm",
+    "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+}
