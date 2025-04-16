@@ -12,7 +12,7 @@
 
 QueueHandle_t i2c_request_queue;
 
-void choose_i2c_call(i2c_request_t *req, I2C_HandleTypeDef *i2c){
+HAL_StatusTypeDef choose_i2c_call(i2c_request_t *req, I2C_HandleTypeDef *i2c){
 	HAL_StatusTypeDef error;
 	switch (req->op_type) {
 	case I2C_OP_MEM_READ:
@@ -83,7 +83,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 }
 
 HAL_StatusTypeDef i2c_submit_request(I2C_HandleTypeDef *i2c, i2c_request_t *req) {
-	printf("Send to process: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaiting(i2c_request_queue));
+	printf("Send to process: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaiting(i2c_request_queue)+1);
 	i2c_request_t * const req_to_send = req;
 	BaseType_t status = xQueueSend(i2c_request_queue, &req_to_send, 0);
 	if (status != pdPASS) {
@@ -92,8 +92,9 @@ HAL_StatusTypeDef i2c_submit_request(I2C_HandleTypeDef *i2c, i2c_request_t *req)
 	}
 
 	if (uxQueueMessagesWaiting(i2c_request_queue) == 1) {
-		choose_i2c_call(req, i2c);
-		return HAL_OK;
+		if (choose_i2c_call(req, i2c) != HAL_OK) {
+			xQueueReceive(i2c_request_queue, &req, 0);
+		}
 	}
 
 	return HAL_OK;

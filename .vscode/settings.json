@@ -3,4 +3,11 @@
     "cmake.buildPreset": "Debug",
     "C_Cpp.intelliSenseMode": "gcc-arm",
     "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+    "files.associations": {
+        "i2c_request.h": "c",
+        "freertos.h": "c",
+        "portable.h": "c",
+        "freertosconfig.h": "c",
+        "stdio.h": "c"
+    },
 }

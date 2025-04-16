@@ -168,7 +168,6 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
 }
 
 void imu_sensor_read_acc(ImuSensor_t* dev) {
-	printf("read request address: %p\r\n", &acc_read_req);
 	i2c_submit_request(dev->i2c_handle, &acc_read_req);
 }
 
