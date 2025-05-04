@@ -11,8 +11,13 @@
 #include "stm32f4xx_hal.h"
 #include "FreeRTOS.h"
 #include "queue.h"
+#include "semphr.h"
 
 #define I2C_QUEUE_SIZE 32
+
+QueueHandle_t i2c_request_queue;
+SemaphoreHandle_t i2cSemaphore;
+uint32_t i2c_request_processed;
 
 // Enum for supported I2C operations
 typedef enum {
@@ -50,5 +55,7 @@ void i2c_request_queue_init();
  * Add request to the i2c queue
  */
 HAL_StatusTypeDef i2c_submit_request(I2C_HandleTypeDef *i2c, i2c_request_t *req);
+
+HAL_StatusTypeDef choose_i2c_call(i2c_request_t *req, I2C_HandleTypeDef *i2c);
 
 #endif /* INC_I2C_REQUEST_H_ */

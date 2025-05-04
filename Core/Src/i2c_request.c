@@ -10,7 +10,18 @@
 #include "queue.h"
 #include <stdio.h>
 
-QueueHandle_t i2c_request_queue;
+
+HAL_StatusTypeDef i2c_submit_request(I2C_HandleTypeDef *i2c, i2c_request_t *req) {
+	printf("Send to process: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaiting(i2c_request_queue)+1);
+	i2c_request_t * const req_to_send = req;
+	BaseType_t status = xQueueSend(i2c_request_queue, &req_to_send, 0);
+	if (status != pdPASS) {
+		printf("Queue full: Failed to queue item: %p.\r\n", req);
+		return HAL_BUSY;
+	}
+
+	return HAL_OK;
+}
 
 HAL_StatusTypeDef choose_i2c_call(i2c_request_t *req, I2C_HandleTypeDef *i2c){
 	HAL_StatusTypeDef error;
@@ -40,63 +51,21 @@ HAL_StatusTypeDef choose_i2c_call(i2c_request_t *req, I2C_HandleTypeDef *i2c){
 
 void i2c_request_queue_init() {
 	i2c_request_queue = xQueueCreate(I2C_QUEUE_SIZE, sizeof(i2c_request_t *));
+	i2cSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreGive(i2cSemaphore);
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	i2c_request_t *req = NULL;
-	if (xQueueReceiveFromISR(i2c_request_queue, &req, NULL) == pdPASS) {
-		if (req->parse_fn != NULL) {
-			req->parse_fn(req->rx_buf, req->user_data);
-		}
-	}
-	printf("Processed: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaitingFromISR(i2c_request_queue));
-	if (xQueuePeekFromISR(i2c_request_queue, &req) == pdPASS) {
-		choose_i2c_call(req, hi2c);
-	}
+	xSemaphoreGive(i2cSemaphore);
 }
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	i2c_request_t *req = NULL;
-	if (xQueueReceiveFromISR(i2c_request_queue, &req, NULL) == pdPASS) {
-		//printf("I2C Mem Write Callback processed.\r\n");
-	}
-
-
-	printf("Processed: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaitingFromISR(i2c_request_queue));
-	if (xQueuePeekFromISR(i2c_request_queue, &req) == pdPASS) {
-		choose_i2c_call(req, hi2c);
-	}
+	xSemaphoreGive(i2cSemaphore);
 }
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-	i2c_request_t *req = NULL;
-
-	// Remove the failed request from the queue
-	if (xQueueReceiveFromISR(i2c_request_queue, &req, NULL) == pdPASS) {
-		printf("Request (%p) removed from queue due to error (0x%08lX), Q occupated: %ld\r\n", req, hi2c->ErrorCode, uxQueueMessagesWaitingFromISR(i2c_request_queue));
-	}
-
-	// Try the next one in queue
-	if (xQueuePeekFromISR(i2c_request_queue, &req) == pdPASS) {
-		choose_i2c_call(req, hi2c);
-	}
+	xSemaphoreGive(i2cSemaphore);
 }
 
-HAL_StatusTypeDef i2c_submit_request(I2C_HandleTypeDef *i2c, i2c_request_t *req) {
-	printf("Send to process: %p, Q occupated: %ld\r\n", req, uxQueueMessagesWaiting(i2c_request_queue)+1);
-	i2c_request_t * const req_to_send = req;
-	BaseType_t status = xQueueSend(i2c_request_queue, &req_to_send, 0);
-	if (status != pdPASS) {
-		printf("Queue full: Failed to queue item: %p.\r\n", req);
-		return HAL_BUSY;
-	}
 
-	if (uxQueueMessagesWaiting(i2c_request_queue) == 1) {
-		if (choose_i2c_call(req, i2c) != HAL_OK) {
-			xQueueReceive(i2c_request_queue, &req, 0);
-		}
-	}
-
-	return HAL_OK;
-}
 

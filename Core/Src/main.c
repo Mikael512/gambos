@@ -101,7 +101,7 @@ void AccelerometerTask(void *pvParameters) {
 		imu_sensor_read_acc(imu);
 		printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
 
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(2000)); // 200Hz
+		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3000)); // 200Hz
 	}
 }
 
@@ -167,6 +167,28 @@ void LoggerTask(void *params) {
 		}
 	}
 }
+
+void I2cTask(void *params) {
+	i2c_request_t *req = NULL;
+
+	while (1) {
+		// Wait until DMA is free before sending the next message
+		xSemaphoreTake(i2cSemaphore, portMAX_DELAY);
+
+    // Parse data from the i2c request queue
+    if (req->parse_fn != NULL) {
+      req->parse_fn(req->rx_buf, req->user_data);
+    }
+    
+    // Wait for a new I2C request
+		if (xQueueReceive(i2c_request_queue, &req, portMAX_DELAY) == pdTRUE) {
+			if (choose_i2c_call(req, &hi2c1) != HAL_OK) {
+        xSemaphoreGive(i2cSemaphore);  // Release the semaphore if the operation fails
+      }
+		}
+	}
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -189,6 +211,7 @@ int main(void)
   logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_BUFFER_SIZE);
 	dmaSemaphore = xSemaphoreCreateBinary();
 	xSemaphoreGive(dmaSemaphore);  // Initialize as "available"
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -237,7 +260,7 @@ int main(void)
   /* add threads, ... */
   xTaskCreate(AccelerometerTask, "Accelerometer task", 1024, &imu, 1, NULL);
 	xTaskCreate(LoggerTask, "Logger task", 1024, NULL, 1, NULL);
-
+  xTaskCreate(I2cTask, "I2c task", 1024, NULL, 1, NULL);
 	//xTaskCreate(MagnetometerTask, "Magnetometer task", 128, &imu, 1, NULL);
 	//xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, &imu);
 	//xTaskCreate(ImuProcessingTask, "Imu processing task", 128, &imu, 1, NULL);
