@@ -8,6 +8,7 @@
         "freertos.h": "c",
         "portable.h": "c",
         "freertosconfig.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "stm32f4xx_hal.h": "c"
     },
 }

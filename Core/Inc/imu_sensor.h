@@ -40,13 +40,7 @@
 #define OUT_Y_L				0x2A
 #define OUT_Z_L				0x2C
 
-// Buffer used when parsing after getting the sensor data
-#define RX_BUFFER_SIZE	6
 
-
-void parse_acc_data(uint8_t *rx_buf, void *user_data);
-void parse_mfield_data(uint8_t *rx_buf, void *user_data);
-void parse_gyro_data(uint8_t *rx_buf, void *user_data);
 /*
  * IMU sensor structure
  */
@@ -56,6 +50,11 @@ typedef struct {
 	int16_t mfield[3];
 	int16_t gyro[3];
 } ImuSensor_t;
+
+void parse_acc_data(uint8_t *rx_buf, ImuSensor_t *dev);
+void parse_mfield_data(uint8_t *rx_buf, ImuSensor_t *dev);
+void parse_gyro_data(uint8_t *rx_buf, ImuSensor_t *dev);
+
 
 /*
  * Initialization

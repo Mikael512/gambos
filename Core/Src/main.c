@@ -91,18 +91,44 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void AccelerometerTask(void *pvParameters) {
-	ImuSensor_t* imu = (ImuSensor_t*) pvParameters;
+  ImuSensor_t* imu = (ImuSensor_t*) pvParameters;
 	TickType_t xLastWakeTime;
 
-	// Initialize the last wake time to the current time
+  printf("Accelerometer task started\r\n");
+
 	xLastWakeTime = xTaskGetTickCount();
+  SemaphoreHandle_t done_sem = xSemaphoreCreateBinary();
 
-	while(1) {
-		imu_sensor_read_acc(imu);
-		printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
+  uint8_t acc_rx_buf[6] = {0}; // Buffer to hold accelerometer data
 
-		vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3000)); // 200Hz
-	}
+  while (1) {
+      // Create a request to read 2 bytes from register 0x00
+      i2c_request_t req = {
+          .op = I2C_OP_MEM_READ,
+          .dev_addr = ACC_ADDRESS,
+          .reg_addr = OUT_X_L_A | 0x80,
+          .rx_buf = acc_rx_buf,
+          .rx_len = sizeof(acc_rx_buf),
+          .tx_buf = NULL,
+          .tx_len = 0,
+          .done_sem = done_sem
+      };
+
+      // Send the request to the I2C task
+      if (xQueueSend(i2c_request_queue, &req, portMAX_DELAY) == pdPASS) {
+          // Block here until the I2C task signals completion
+          if (xSemaphoreTake(done_sem, pdMS_TO_TICKS(100)) == pdTRUE) {
+              // Successfully read data — parse it
+              parse_acc_data(acc_rx_buf, imu);
+              printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
+          } else {
+              // Timeout or failure — handle it
+              printf("Failed to read Accelerometer data\r\n");
+          }
+      }
+
+      vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3000)); // 200Hz
+  }
 }
 
 void MagnetometerTask(void *pvParameters) {
@@ -154,8 +180,9 @@ void ImuProcessingTask(void *pvParameters) {
 	}
 }
 
-void LoggerTask(void *params) {
+void LoggerTask(void *pvParameters) {
 	char logMessage[LOG_BUFFER_SIZE];
+  printf("Logger task started\r\n");
 
 	while (1) {
 		// Wait until DMA is free before sending the next message
@@ -168,26 +195,47 @@ void LoggerTask(void *params) {
 	}
 }
 
-void I2cTask(void *params) {
-	i2c_request_t *req = NULL;
+void I2cTask(void *pvParameters) {
+  i2c_request_t req;
+  printf("I2C task started\r\n");
 
-	while (1) {
-		// Wait until DMA is free before sending the next message
-		xSemaphoreTake(i2cSemaphore, portMAX_DELAY);
+  while (1) {
+      if (xQueueReceive(i2c_request_queue, &req, portMAX_DELAY) == pdTRUE) {
+          HAL_StatusTypeDef result = HAL_ERROR;
+          printf("I2C request: %p\r\n", &req);
 
-    // Parse data from the i2c request queue
-    if (req->parse_fn != NULL) {
-      req->parse_fn(req->rx_buf, req->user_data);
-    }
-    
-    // Wait for a new I2C request
-		if (xQueueReceive(i2c_request_queue, &req, portMAX_DELAY) == pdTRUE) {
-			if (choose_i2c_call(req, &hi2c1) != HAL_OK) {
-        xSemaphoreGive(i2cSemaphore);  // Release the semaphore if the operation fails
+          switch (req.op) {
+              case I2C_OP_MEM_READ:
+                  result = HAL_I2C_Mem_Read_IT(&hi2c1, req.dev_addr << 1, req.reg_addr,
+                                            I2C_MEMADD_SIZE_8BIT,
+                                            req.rx_buf, req.rx_len);
+                  break;
+
+              case I2C_OP_MEM_WRITE:
+                  result = HAL_I2C_Mem_Write_IT(&hi2c1, req.dev_addr << 1, req.reg_addr,
+                                             I2C_MEMADD_SIZE_8BIT,
+                                             req.tx_buf, req.tx_len);
+                  break;
+
+              case I2C_OP_MASTER_TRANSMIT:
+                  result = HAL_I2C_Master_Transmit_IT(&hi2c1, req.dev_addr << 1,
+                                                   req.tx_buf, req.tx_len);
+                  break;
+
+              case I2C_OP_MASTER_RECEIVE:
+                  result = HAL_I2C_Master_Receive_IT(&hi2c1, req.dev_addr << 1,
+                                                  req.rx_buf, req.rx_len);
+                  break;
+          }
+
+          // Signal completion only if successful (or always, if you prefer)
+          if (req.done_sem) {
+              xSemaphoreGive(req.done_sem);
+          }
       }
-		}
-	}
+  }
 }
+
 
 /* USER CODE END 0 */
 
@@ -258,9 +306,19 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-  xTaskCreate(AccelerometerTask, "Accelerometer task", 1024, &imu, 1, NULL);
-	xTaskCreate(LoggerTask, "Logger task", 1024, NULL, 1, NULL);
-  xTaskCreate(I2cTask, "I2c task", 1024, NULL, 1, NULL);
+  BaseType_t result;
+  result = xTaskCreate(AccelerometerTask, "Accelerometer task", 512, &imu, 1, NULL);
+  if (result != pdPASS) {
+    printf("Failed to create Accelerometer task!\r\n");
+  }
+	result = xTaskCreate(LoggerTask, "Logger task", 1024, NULL, 1, NULL);
+  if (result != pdPASS) {
+    printf("Failed to create Logger task!\r\n");
+  }
+  result = xTaskCreate(I2cTask, "I2c task", 512, NULL, 1, NULL);
+  if (result != pdPASS) {
+      printf("Failed to create I2cTask!\r\n");
+  }
 	//xTaskCreate(MagnetometerTask, "Magnetometer task", 128, &imu, 1, NULL);
 	//xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, &imu);
 	//xTaskCreate(ImuProcessingTask, "Imu processing task", 128, &imu, 1, NULL);
