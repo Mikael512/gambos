@@ -98,11 +98,12 @@ void AccelerometerTask(void *pvParameters) {
 
     xLastWakeTime = xTaskGetTickCount();
     SemaphoreHandle_t done_sem = xSemaphoreCreateBinary();
+    xSemaphoreTake(done_sem, 0); // Initialize as "not available"
 
     uint8_t acc_rx_buf[6] = {0}; // Buffer to hold accelerometer data
 
     while (1) {
-        // Create a request to read 2 bytes from register 0x00
+        // Create a request to read 2 bytes
         i2c_request_t req = {
             .op = I2C_OP_MEM_READ,
             .dev_addr = ACC_ADDRESS,
@@ -111,15 +112,13 @@ void AccelerometerTask(void *pvParameters) {
             .rx_len = sizeof(acc_rx_buf),
             .tx_buf = NULL,
             .tx_len = 0,
-            .done_sem = done_sem
+            .done_sem = &done_sem
         };
 
-        i2c_request_t * const req_to_send = &req;
-
         // Send the request to the I2C task
-        if (xQueueSend(i2c_request_queue, &req_to_send, portMAX_DELAY) == pdPASS) {
+        if (xQueueSend(i2c_request_queue, &req, 0) == pdPASS) {
             // Block here until the I2C task signals completion
-            if (xSemaphoreTake(done_sem, pdMS_TO_TICKS(100)) == pdTRUE) {
+            if (xSemaphoreTake(done_sem, portMAX_DELAY) == pdTRUE) {
                 // Successfully read data — parse it
                 parse_acc_data(acc_rx_buf, imu);
                 printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
@@ -204,7 +203,7 @@ void I2cTask(void *pvParameters) {
     while (1) {
         xSemaphoreTake(i2cSemaphore, portMAX_DELAY);
         if (xQueueReceive(i2c_request_queue, &req, portMAX_DELAY) == pdTRUE) {
-          printf("I2C request received: %p\r\n", req);
+            printf("I2C request received: %p\r\n", req);
             current_request = req;
             HAL_StatusTypeDef result = HAL_ERROR;
 
@@ -301,14 +300,15 @@ int main(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   BaseType_t result;
+  result = xTaskCreate(LoggerTask, "Logger Task", 512, NULL, 1, NULL);
+  if (result != pdPASS)
+      printf("Failed to create Logger Task\r\n");
 
   result = xTaskCreate(I2cTask, "I2C Task", 512, NULL, 1, NULL);
   if (result != pdPASS)
       printf("Failed to create I2C Task\r\n");
 
-  result = xTaskCreate(LoggerTask, "Logger Task", 512, NULL, 1, NULL);
-  if (result != pdPASS)
-      printf("Failed to create Logger Task\r\n");
+
 
   result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 1024, &imu, 1, NULL);
   if (result != pdPASS)

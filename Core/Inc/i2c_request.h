@@ -35,10 +35,10 @@ typedef struct {
     uint8_t *rx_buf;
     size_t tx_len;
     size_t rx_len;
-    SemaphoreHandle_t done_sem;
+    SemaphoreHandle_t *done_sem;
 } i2c_request_t;
 
-extern i2c_request_t *current_request;
+extern volatile i2c_request_t *current_request;
 
 /*
  * Initialize the i2c queue that handles interrupt based i2c requests

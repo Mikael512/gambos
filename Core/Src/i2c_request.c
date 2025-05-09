@@ -12,7 +12,7 @@
 
 QueueHandle_t i2c_request_queue = NULL;
 SemaphoreHandle_t i2cSemaphore = NULL;
-i2c_request_t *current_request = NULL;
+volatile i2c_request_t *current_request = NULL;
 
 
 void i2c_request_queue_init() {
@@ -22,12 +22,18 @@ void i2c_request_queue_init() {
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	xSemaphoreGiveFromISR(i2cSemaphore, NULL);
+	printf("I2C Rx Complete\r\n");
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	if (current_request && current_request->done_sem) {
-        xSemaphoreGiveFromISR(current_request->done_sem, NULL);
+    xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
+
+    if (current_request && current_request->done_sem) {
+        xSemaphoreGiveFromISR(*(current_request->done_sem), &xHigherPriorityTaskWoken);
     }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
+
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 	printf("I2C Tx Complete\r\n");
@@ -37,11 +43,15 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 	printf("I2C Error\r\n");
-	xSemaphoreGiveFromISR(i2cSemaphore, NULL);
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	if (current_request && current_request->done_sem) {
-        xSemaphoreGiveFromISR(current_request->done_sem, NULL);
+    xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
+
+    if (current_request && current_request->done_sem) {
+        xSemaphoreGiveFromISR(*(current_request->done_sem), &xHigherPriorityTaskWoken);
     }
+
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 
