@@ -1,10 +1,3 @@
-/*
- * imu_sensor.h
- *
- *  Created on: Feb 28, 2025
- *      Author: Mikael Marvin
- */
-
 #ifndef INC_IMU_SENSOR_H_
 #define INC_IMU_SENSOR_H_
 
@@ -51,7 +44,6 @@ typedef struct {
 	int16_t gyro[3];
 } ImuSensor_t;
 
-void parse_acc_data(uint8_t *rx_buf, ImuSensor_t *dev);
 void parse_mfield_data(uint8_t *rx_buf, ImuSensor_t *dev);
 void parse_gyro_data(uint8_t *rx_buf, ImuSensor_t *dev);
 
@@ -60,12 +52,5 @@ void parse_gyro_data(uint8_t *rx_buf, ImuSensor_t *dev);
  * Initialization
  */
 HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle);
-
-/*
- * Data acquisition
- */
-void imu_sensor_read_acc(ImuSensor_t* dev);
-void imu_sensor_read_mfield(ImuSensor_t* dev);
-void imu_sensor_read_gyro(ImuSensor_t* dev);
 
 #endif /* INC_IMU_SENSOR_H_ */

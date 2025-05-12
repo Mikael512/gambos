@@ -6,7 +6,7 @@
  */
 
 #include "imu_sensor.h"
-#include "i2c_request.h"
+#include "i2c_task.h"
 #include <stdio.h>
 
 
@@ -82,6 +82,8 @@ static i2c_request_t imu_config_requests[] = {
     }
 };
 
+static i2c_request_t* req_to_send; 
+
 HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle) {
     dev->i2c_handle = i2c_handle;
 
@@ -94,7 +96,8 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
     const size_t count = sizeof(imu_config_requests) / sizeof(imu_config_requests[0]);
     for (size_t i = 0; i < count; ++i) {
 		printf("Sending config request %p\r\n", &imu_config_requests[i]);
-        if (xQueueSend(i2c_request_queue, &imu_config_requests[i], portMAX_DELAY) != pdPASS) {
+        req_to_send = &imu_config_requests[i];
+        if (xQueueSend(i2c_queue, &req_to_send, portMAX_DELAY) != pdPASS) {
             printf("Failed to send config request %u\r\n", i);
             return HAL_ERROR;
         }
@@ -102,13 +105,6 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
     }
 
     return HAL_OK;
-}
-
-
-void parse_acc_data(uint8_t *rx_buf, ImuSensor_t *dev) {
-	dev->acc[0] = (int16_t)((rx_buf[1] << 8) | rx_buf[0]);
-	dev->acc[1] = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
-	dev->acc[2] = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
 }
 
 void parse_mfield_data(uint8_t *rx_buf, ImuSensor_t *dev) {
