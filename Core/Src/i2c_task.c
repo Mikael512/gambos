@@ -77,6 +77,7 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
 	printf("I2C Error\r\n");
+    printf("I2C error: 0x%lx\n", hi2c->ErrorCode);
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);

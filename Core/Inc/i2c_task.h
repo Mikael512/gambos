@@ -26,8 +26,8 @@ typedef struct {
     uint16_t reg_addr;
     uint8_t *tx_buf;
     uint8_t *rx_buf;
-    uint8_t tx_len;
-    uint8_t rx_len;
+    uint16_t tx_len;
+    uint16_t rx_len;
     SemaphoreHandle_t done_sem;
 } i2c_request_t;
 

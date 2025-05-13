@@ -101,7 +101,7 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
             printf("Failed to send config request %u\r\n", i);
             return HAL_ERROR;
         }
-        vTaskDelay(pdMS_TO_TICKS(10)); // Optional delay between requests
+        vTaskDelay(pdMS_TO_TICKS(100)); // Optional delay between requests
     }
 
     return HAL_OK;
@@ -118,4 +118,3 @@ void parse_gyro_data(uint8_t *rx_buf, ImuSensor_t *dev) {
     dev->gyro[1] = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
     dev->gyro[2] = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
 }
-
