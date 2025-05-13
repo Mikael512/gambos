@@ -39,7 +39,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define LOG_BUFFER_SIZE 64
-#define LOG_QUEUE_SIZE 16
+#define LOG_QUEUE_SIZE 32
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
