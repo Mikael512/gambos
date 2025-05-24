@@ -15,7 +15,7 @@ void I2cTask(void *pvParameters) {
     while (1) {
         xSemaphoreTake(i2cSemaphore, portMAX_DELAY);
         if (xQueueReceive(i2c_queue, &req, portMAX_DELAY) == pdTRUE) {
-            printf("I2C request received: %p\r\n", req);
+            // printf("I2C request received: %p\r\n", req);
             HAL_StatusTypeDef result = HAL_ERROR;
 
             switch (req->op) {
@@ -50,7 +50,7 @@ void i2c_queue_init() {
 }
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
-	printf("I2C Rx Complete\r\n");
+	// printf("I2C Rx Complete\r\n");
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
@@ -65,9 +65,8 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    // printf("I2C Tx Complete\r\n");
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
-    printf("I2C Tx Complete\r\n");
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
 
@@ -81,7 +80,7 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-    printf("I2C Error: 0x%lx\r\n", hi2c->ErrorCode);
+    // printf("I2C Error: 0x%lx\r\n", hi2c->ErrorCode);
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
