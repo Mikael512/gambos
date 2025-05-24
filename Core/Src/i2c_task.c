@@ -69,21 +69,24 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
     printf("I2C Tx Complete\r\n");
 
-    xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
+    if (req && req->done_sem) {
+        xSemaphoreGiveFromISR(req->done_sem, &xHigherPriorityTaskWoken);
+        req = NULL;
+    }
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-	printf("I2C Error\r\n");
-    printf("I2C error: 0x%lx\n", hi2c->ErrorCode);
+    printf("I2C Error: 0x%lx\r\n", hi2c->ErrorCode);
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);
 
     if (req && req->done_sem) {
         xSemaphoreGiveFromISR(req->done_sem, &xHigherPriorityTaskWoken);
+        req = NULL;
     }
 
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

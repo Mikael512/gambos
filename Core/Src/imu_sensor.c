@@ -1,10 +1,3 @@
-/*
- * lsm303dlhc.c
- *
- *  Created on: Feb 28, 2025
- *      Author: Mikael Marvin
- */
-
 #include "imu_sensor.h"
 #include "i2c_task.h"
 #include <stdio.h>
@@ -82,7 +75,7 @@ static i2c_request_t imu_config_requests[] = {
     }
 };
 
-static i2c_request_t* req_to_send; 
+volatile static i2c_request_t* req_to_send; 
 
 HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle) {
     dev->i2c_handle = i2c_handle;
@@ -105,16 +98,4 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
     }
 
     return HAL_OK;
-}
-
-void parse_mfield_data(uint8_t *rx_buf, ImuSensor_t *dev) {
-    dev->mfield[0] = (int16_t)((rx_buf[1] << 8) | rx_buf[0]);
-    dev->mfield[1] = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
-    dev->mfield[2] = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
-}
-
-void parse_gyro_data(uint8_t *rx_buf, ImuSensor_t *dev) {
-    dev->gyro[0] = (int16_t)((rx_buf[1] << 8) | rx_buf[0]);
-    dev->gyro[1] = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
-    dev->gyro[2] = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
 }
