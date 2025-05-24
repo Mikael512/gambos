@@ -46,7 +46,7 @@ void AccelerometerTask(void *pvParameters) {
         }
         xSemaphoreGive(i2cSemaphore);
 
-        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(3000));
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(100));
     }
 }
 

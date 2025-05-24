@@ -94,7 +94,7 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
             printf("Failed to send config request %u\r\n", i);
             return HAL_ERROR;
         }
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Optional delay between requests
+        vTaskDelay(pdMS_TO_TICKS(10)); // Optional delay between requests
     }
 
     return HAL_OK;
