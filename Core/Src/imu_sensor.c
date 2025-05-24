@@ -75,7 +75,7 @@ static i2c_request_t imu_config_requests[] = {
     }
 };
 
-volatile static i2c_request_t* req_to_send; 
+static volatile i2c_request_t* req_to_send; 
 
 HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle) {
     dev->i2c_handle = i2c_handle;
@@ -86,15 +86,15 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
         dev->gyro[i] = 0;
     }
 
-    const size_t count = sizeof(imu_config_requests) / sizeof(imu_config_requests[0]);
-    for (size_t i = 0; i < count; ++i) {
+    const uint32_t count = sizeof(imu_config_requests) / sizeof(imu_config_requests[0]);
+    for (uint32_t i = 0; i < count; ++i) {
 		printf("Sending config request %p\r\n", &imu_config_requests[i]);
         req_to_send = &imu_config_requests[i];
         if (xQueueSend(i2c_queue, &req_to_send, portMAX_DELAY) != pdPASS) {
             printf("Failed to send config request %u\r\n", i);
             return HAL_ERROR;
         }
-        vTaskDelay(pdMS_TO_TICKS(100)); // Optional delay between requests
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Optional delay between requests
     }
 
     return HAL_OK;
