@@ -14,7 +14,10 @@
             ],
             "preLaunchTask": "Build Debug",
             "runToEntryPoint": "main",
-            "svdFile": "STM32F446.svd"
+            "svdFile": "STM32F446.svd",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "armToolchainPath": "/usr/bin"
+
         }
     ]
 }
