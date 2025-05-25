@@ -38,13 +38,12 @@ void AccelerometerTask(void *pvParameters) {
             if (xSemaphoreTake(acc_read_req.done_sem, portMAX_DELAY) == pdTRUE) {
                 // Successfully read data — parse it
                 parse_acc_data(acc_rx_buf, imu);
-                // printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
+                printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
             } else {
-                // Timeout or failure — handle it
+                // Timeout or failure
                 printf("Failed to read Accelerometer data\r\n");
             }
         }
-        xSemaphoreGive(i2cSemaphore);
 
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(100));
     }

@@ -11,8 +11,6 @@
 extern QueueHandle_t i2c_queue;
 extern SemaphoreHandle_t i2cSemaphore;
 
-
-// Enum for supported I2C operations
 typedef enum {
     I2C_OP_MEM_WRITE,
     I2C_OP_MEM_READ,
@@ -32,10 +30,6 @@ typedef struct {
 } i2c_request_t;
 
 void I2cTask(void *pvParameters);
-
-/*
- * Initialize the i2c queue that handles interrupt based i2c requests
- */
 void i2c_queue_init();
 
 #endif /* INC_I2C_TASK_H_ */
