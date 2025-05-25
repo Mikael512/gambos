@@ -1,17 +1,7 @@
 #include "logger_task.h"
-#include <queue.h>
-#include "semphr.h"
-#include <string.h>      
-#include <stdio.h>          
-#include "stm32f4xx_hal.h"  
 
-
-#define LOG_BUFFER_SIZE 64
-#define LOG_QUEUE_SIZE 32
-
-
-static QueueHandle_t logQueue;
-static SemaphoreHandle_t dmaSemaphore;
+QueueHandle_t logQueue;
+SemaphoreHandle_t dmaSemaphore;
 
 
 int _write(int file, char *ptr, int len) {
@@ -27,19 +17,9 @@ int _write(int file, char *ptr, int len) {
 	return len;
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-	if (huart == &huart2) {
-		xSemaphoreGiveFromISR(dmaSemaphore, NULL);  // Release DMA for the next message
-	}
-}
-
 void LoggerTask(void *pvParameters) {
 	char logMessage[LOG_BUFFER_SIZE];
     printf("Logger task started\r\n");
-
-    logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_BUFFER_SIZE);
-	dmaSemaphore = xSemaphoreCreateBinary();
-	xSemaphoreGive(dmaSemaphore);  // Initialize as "available"
 
 	while (1) {
 		// Wait until DMA is free before sending the next message
@@ -50,4 +30,16 @@ void LoggerTask(void *pvParameters) {
 			HAL_UART_Transmit_DMA(&huart2, (uint8_t *)logMessage, strlen(logMessage));
 		}
 	}
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart == &huart2) {
+		xSemaphoreGiveFromISR(dmaSemaphore, NULL);  // Release DMA for the next message
+	}
+}
+
+void logger_queue_init() {
+	logQueue = xQueueCreate(LOG_QUEUE_SIZE, LOG_BUFFER_SIZE);
+	dmaSemaphore = xSemaphoreCreateBinary();
+	xSemaphoreGive(dmaSemaphore);  // Initialize as "available"
 }

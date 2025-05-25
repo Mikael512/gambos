@@ -5,10 +5,10 @@
 
 // Define configuration values
 static uint8_t acc_ctrl   = 0x67;
-static uint8_t mag_cra    = 0x1C;
-static uint8_t mag_crb    = 0x20;
+static uint8_t mag_cra    = 0x0C;
+static uint8_t mag_crb    = 0x80;
 static uint8_t mag_mr     = 0x00;
-static uint8_t gyr_ctrl1  = 0x7F;
+static uint8_t gyr_ctrl1  = 0x0F;
 static uint8_t gyr_ctrl2  = 0x29;
 
 // Requests (same order as above)
@@ -25,7 +25,7 @@ static i2c_request_t imu_config_requests[] = {
     },
     {
         .op = I2C_OP_MEM_WRITE,
-        .dev_addr = MFIELD_ADDRESS,
+        .dev_addr = MAG_ADDRESS,
         .reg_addr = CRA_REG_M,
         .tx_buf = &mag_cra,
         .tx_len = 1,
@@ -35,7 +35,7 @@ static i2c_request_t imu_config_requests[] = {
     },
     {
         .op = I2C_OP_MEM_WRITE,
-        .dev_addr = MFIELD_ADDRESS,
+        .dev_addr = MAG_ADDRESS,
         .reg_addr = CRB_REG_M,
         .tx_buf = &mag_crb,
         .tx_len = 1,
@@ -45,7 +45,7 @@ static i2c_request_t imu_config_requests[] = {
     },
     {
         .op = I2C_OP_MEM_WRITE,
-        .dev_addr = MFIELD_ADDRESS,
+        .dev_addr = MAG_ADDRESS,
         .reg_addr = MR_REG_M,
         .tx_buf = &mag_mr,
         .tx_len = 1,
@@ -82,13 +82,13 @@ HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c
 
     for (int i = 0; i < 3; ++i) {
         dev->acc[i] = 0;
-        dev->mfield[i] = 0;
+        dev->mag[i] = 0;
         dev->gyro[i] = 0;
     }
 
     const uint32_t count = sizeof(imu_config_requests) / sizeof(imu_config_requests[0]);
     for (uint32_t i = 0; i < count; ++i) {
-		printf("Sending config request %p\r\n", &imu_config_requests[i]);
+		// printf("Sending config request %p\r\n", &imu_config_requests[i]);
         req_to_send = &imu_config_requests[i];
         if (xQueueSend(i2c_queue, &req_to_send, portMAX_DELAY) != pdPASS) {
             printf("Failed to send config request %u\r\n", i);

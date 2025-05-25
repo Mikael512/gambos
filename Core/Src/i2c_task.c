@@ -5,7 +5,7 @@
 
 QueueHandle_t i2c_queue;
 SemaphoreHandle_t i2cSemaphore;
-static volatile i2c_request_t* req = NULL;
+static i2c_request_t* req = NULL;
 
 
 void I2cTask(void *pvParameters) {
@@ -80,7 +80,7 @@ void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
-    // printf("I2C Error: 0x%lx\r\n", hi2c->ErrorCode);
+    printf("I2C Error: 0x%lx\r\n", hi2c->ErrorCode);
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xSemaphoreGiveFromISR(i2cSemaphore, &xHigherPriorityTaskWoken);

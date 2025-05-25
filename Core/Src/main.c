@@ -4,10 +4,12 @@
 #include "i2c_task.h"
 #include "logger_task.h"
 #include "accelerometer_task.h"
+#include "magnetometer_task.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 #include "string.h"
+#include "queue.h"
 
 I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart2;
@@ -34,31 +36,30 @@ int main(void) {
     MX_I2C1_Init();
     MX_USART2_UART_Init();
 
-    // Initialize i2c queue for general communication
+    // Initialize i2c queue and logger queue
     i2c_queue_init();
+    logger_queue_init();
 
     ImuSensor_t imu;
-    printf("imu address: %p\r\n", &imu);
     imu_sensor_initialize(&imu, &hi2c1);
 
-    UBaseType_t items_in_queue = uxQueueMessagesWaiting(i2c_queue);
-    printf("Items waiting in queue: %lu\r\n", (unsigned long)items_in_queue);
-
-
     BaseType_t result;
-    result = xTaskCreate(LoggerTask, "Logger Task", 1024, NULL, 1, NULL);
+    result = xTaskCreate(LoggerTask, "Logger Task", 256, NULL, 1, NULL);
     if (result != pdPASS)
         printf("Failed to create Logger Task\r\n");
 
-    result = xTaskCreate(I2cTask, "I2C Task", 1024, &hi2c1, 1, NULL);
+    result = xTaskCreate(I2cTask, "I2C Task", 256, &hi2c1, 1, NULL);
     if (result != pdPASS)
         printf("Failed to create I2C Task\r\n");
 
-    result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 1024, &imu, 1, NULL);
+    // result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, &imu, 1, NULL);
+    // if (result != pdPASS)
+    //     printf("Failed to create Accelerometer Task\r\n");
+
+    result = xTaskCreate(MagnetometerTask, "Accelerometer Task", 256, &imu, 1, NULL);
     if (result != pdPASS)
-        printf("Failed to create Accelerometer Task\r\n");
+        printf("Failed to create Magnetometer Task\r\n");
     
-    //xTaskCreate(MagnetometerTask, "Magnetometer task", 128, &imu, 1, NULL);
     //xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, &imu);
     //xTaskCreate(ImuProcessingTask, "Imu processing task", 128, &imu, 1, NULL);
 
