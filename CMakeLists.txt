@@ -58,11 +58,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    Core/Inc/imu_sensor.h
-    Core/Inc/i2c_task.h
-    Core/Inc/accelerometer_task.h
-    Core/Inc/magnetometer_task.h
-    Core/Inc/logger_task.h
+    ${PROJECT_SOURCE_DIR}/Core/Inc
 )
 
 # Add project symbols (macros)
