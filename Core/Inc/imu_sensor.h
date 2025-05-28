@@ -38,7 +38,6 @@
  * IMU sensor structure
  */
 typedef struct {
-	I2C_HandleTypeDef* i2c_handle;
 	int16_t acc[3];
 	int16_t mag[3];
 	int16_t gyro[3];
@@ -46,8 +45,8 @@ typedef struct {
 
 
 /*
- * Initialization
+ * Initialization task
  */
-HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle);
+void SensorInitTask(void *pvParameters);
 
 #endif /* INC_IMU_SENSOR_H_ */

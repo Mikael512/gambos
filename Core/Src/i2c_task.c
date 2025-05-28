@@ -89,6 +89,7 @@ HAL_StatusTypeDef i2c_mem_read(uint16_t dev_addr, uint8_t reg_addr, uint8_t *rx_
 
 HAL_StatusTypeDef i2c_mem_write(uint16_t dev_addr, uint8_t reg_addr, uint8_t *tx_buf, uint16_t len, TickType_t timeout) {
     SemaphoreHandle_t done_sem = xSemaphoreCreateBinary();
+    xSemaphoreTake(done_sem, 0); // Initialize as "not available"
     if (done_sem == NULL) return HAL_ERROR;
 
     i2c_request_t req = {
@@ -106,16 +107,19 @@ HAL_StatusTypeDef i2c_mem_write(uint16_t dev_addr, uint8_t reg_addr, uint8_t *tx
     // push only the address of the request, we need to use another pointer
     i2c_request_t* req_to_send = &req; 
 
+    // Send pointer to request into queue and wait if the queue is full
     if (xQueueSend(i2c_queue, &req_to_send, timeout) != pdPASS) {
         vSemaphoreDelete(done_sem);
         return HAL_ERROR;
     }
 
+    // Wait for request to complete or timeout
     if (xSemaphoreTake(done_sem, timeout) != pdTRUE) {
         vSemaphoreDelete(done_sem);
         return HAL_TIMEOUT;
     }
 
+    // Wait for request to complete or timeout
     vSemaphoreDelete(done_sem);
     return HAL_OK;
 }

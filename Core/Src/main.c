@@ -41,7 +41,6 @@ int main(void) {
     logger_queue_init();
 
     ImuSensor_t imu;
-    imu_sensor_initialize(&imu, &hi2c1);
 
     BaseType_t result;
     result = xTaskCreate(LoggerTask, "Logger Task", 256, NULL, 1, NULL);
@@ -52,9 +51,16 @@ int main(void) {
     if (result != pdPASS)
         printf("Failed to create I2C Task\r\n");
 
+    result = xTaskCreate(SensorInitTask, "SensorInit task", 256, NULL, 0, NULL);
+    if (result != pdPASS)
+        printf("Failed to create SensorInit Task\r\n");
+
     result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, &imu, 1, NULL);
     if (result != pdPASS)
         printf("Failed to create Accelerometer Task\r\n");
+
+        
+
 
     // result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, &imu, 1, NULL);
     // if (result != pdPASS)
