@@ -7,6 +7,6 @@
 #include "semphr.h"
 
 void MagnetometerTask(void *pvParameters);
-void parse_mag_data(uint8_t *rx_buf, ImuSensor_t *dev);
+void parse_mag_data(uint8_t *rx_buf, int16_t *data);
 
 #endif /* INC_MAGNETOMETER_TASK_H_ */

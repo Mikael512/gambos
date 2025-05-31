@@ -13,12 +13,11 @@ void AccelerometerTask(void *pvParameters) {
 
     xLastWakeTime = xTaskGetTickCount();
 
-    while (1) {
-        uint8_t acc_rx_buf[6] = {0};
+    uint8_t acc_rx_buf[6] = {0};
 
+    while (1) {
         if(i2c_mem_read(ACC_ADDRESS, OUT_X_L_A | 0x80, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(100)) == HAL_OK) {
             parse_acc_data(acc_rx_buf, imu);
-            // publish data to dedicated queue
             printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", imu->acc[0], imu->acc[1], imu->acc[2]);
         } else {
             printf("Failed to read Accelerometer data\r\n");

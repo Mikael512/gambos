@@ -21,6 +21,8 @@
 #define OUT_X_H_M			((uint8_t) 0x03)
 #define OUT_Z_H_M			((uint8_t) 0x05)
 #define OUT_Y_H_M			((uint8_t) 0x07)
+#define SR_REG_M			((uint8_t) 0x09)
+#define IRA_REG_M			((uint8_t) 0x0A)
 
 // Accelerometer and magnetomoter temperature sensor
 #define TEMP_OUT_H_M		((uint8_t) 0x31)

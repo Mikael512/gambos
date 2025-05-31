@@ -51,20 +51,17 @@ int main(void) {
     if (result != pdPASS)
         printf("Failed to create I2C Task\r\n");
 
-    result = xTaskCreate(SensorInitTask, "SensorInit task", 256, NULL, 0, NULL);
+    result = xTaskCreate(SensorInitTask, "SensorInit task", 256, &imu, 0, NULL);
     if (result != pdPASS)
         printf("Failed to create SensorInit Task\r\n");
 
-    result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, &imu, 1, NULL);
-    if (result != pdPASS)
-        printf("Failed to create Accelerometer Task\r\n");
-
-        
-
-
-    // result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, &imu, 1, NULL);
+    // result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, &imu, 1, NULL);
     // if (result != pdPASS)
-    //     printf("Failed to create Magnetometer Task\r\n");
+    //     printf("Failed to create Accelerometer Task\r\n");
+
+    result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, &imu, 1, NULL);
+    if (result != pdPASS)
+        printf("Failed to create Magnetometer Task\r\n");
     
     //xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, &imu);
     //xTaskCreate(ImuProcessingTask, "Imu processing task", 128, &imu, 1, NULL);
