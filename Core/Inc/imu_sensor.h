@@ -10,6 +10,7 @@
 
 // Accelerometer registers
 #define CTRL_REG1_A			((uint8_t) 0x20)
+#define CTRL_REG4_A			((uint8_t) 0x23)
 #define OUT_X_L_A			((uint8_t) 0x28)
 #define OUT_Y_L_A			((uint8_t) 0x2A)
 #define OUT_Z_L_A			((uint8_t) 0x2C)
