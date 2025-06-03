@@ -10,6 +10,7 @@
 
 // Accelerometer registers
 #define CTRL_REG1_A			((uint8_t) 0x20)
+#define CTRL_REG4_A			((uint8_t) 0x23)
 #define OUT_X_L_A			((uint8_t) 0x28)
 #define OUT_Y_L_A			((uint8_t) 0x2A)
 #define OUT_Z_L_A			((uint8_t) 0x2C)
@@ -21,6 +22,8 @@
 #define OUT_X_H_M			((uint8_t) 0x03)
 #define OUT_Z_H_M			((uint8_t) 0x05)
 #define OUT_Y_H_M			((uint8_t) 0x07)
+#define SR_REG_M			((uint8_t) 0x09)
+#define IRA_REG_M			((uint8_t) 0x0A)
 
 // Accelerometer and magnetomoter temperature sensor
 #define TEMP_OUT_H_M		((uint8_t) 0x31)
@@ -38,7 +41,6 @@
  * IMU sensor structure
  */
 typedef struct {
-	I2C_HandleTypeDef* i2c_handle;
 	int16_t acc[3];
 	int16_t mag[3];
 	int16_t gyro[3];
@@ -46,8 +48,8 @@ typedef struct {
 
 
 /*
- * Initialization
+ * Initialization task
  */
-HAL_StatusTypeDef imu_sensor_initialize(ImuSensor_t* dev, I2C_HandleTypeDef* i2c_handle);
+void SensorInitTask(void *pvParameters);
 
 #endif /* INC_IMU_SENSOR_H_ */

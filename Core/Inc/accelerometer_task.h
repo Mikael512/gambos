@@ -5,6 +5,6 @@
 
 
 void AccelerometerTask(void *pvParameters);
-void parse_acc_data(uint8_t *rx_buf, ImuSensor_t *dev);
+void parse_acc_data(uint8_t *rx_buf, int16_t *data);
 
 #endif /* INC_ACCELEROMETER_TASK_H_ */
