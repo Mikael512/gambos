@@ -1,6 +1,6 @@
 #include "main.h"
 #include <stdio.h>
-#include "imu_sensor.h"
+#include "ism330dhcx.h"
 #include "i2c_task.h"
 #include "logger_task.h"
 #include "accelerometer_task.h"
@@ -59,9 +59,9 @@ int main(void) {
     // if (result != pdPASS)
     //     printf("Failed to create Accelerometer Task\r\n");
 
-    result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, &imu, 1, NULL);
-    if (result != pdPASS)
-        printf("Failed to create Magnetometer Task\r\n");
+    // result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, &imu, 1, NULL);
+    // if (result != pdPASS)
+    //     printf("Failed to create Magnetometer Task\r\n");
     
     //xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, &imu);
     //xTaskCreate(ImuProcessingTask, "Imu processing task", 128, &imu, 1, NULL);

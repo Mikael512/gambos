@@ -2,7 +2,7 @@
 #define INC_MAGNETOMETER_TASK_H_
 
 #include <stdio.h>
-#include "imu_sensor.h"
+#include "ism330dhcx.h"
 #include "i2c_task.h"
 #include "semphr.h"
 

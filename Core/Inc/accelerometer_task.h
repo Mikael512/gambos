@@ -1,7 +1,7 @@
 #ifndef INC_ACCELEROMETER_TASK_H_
 #define INC_ACCELEROMETER_TASK_H_
 
-#include "imu_sensor.h"
+#include "ism330dhcx.h"
 
 
 void AccelerometerTask(void *pvParameters);
