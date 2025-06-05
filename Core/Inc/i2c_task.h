@@ -1,5 +1,5 @@
-#ifndef INC_I2C_TASK_H_
-#define INC_I2C_TASK_H_
+#ifndef INC_I2C_TASK_H
+#define INC_I2C_TASK_H
 
 #include "stm32f4xx_hal.h"
 #include "FreeRTOS.h"
@@ -89,4 +89,4 @@ HAL_StatusTypeDef i2c_mem_read(uint16_t dev_addr, uint8_t reg_addr, uint8_t *rx_
  */
 HAL_StatusTypeDef i2c_mem_write(uint16_t dev_addr, uint8_t reg_addr, uint8_t *tx_buf, uint16_t len, TickType_t timeout);
 
-#endif /* INC_I2C_TASK_H_ */
+#endif /* INC_I2C_TASK_H */

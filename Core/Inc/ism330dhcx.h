@@ -1,7 +1,6 @@
-#ifndef INC_ISM330DHCX_H_
-#define INC_ISM330DHCX_H_
+#ifndef INC_ISM330DHCX_H
+#define INC_ISM330DHCX_H
 
-#include "stm32f4xx_hal.h"
 
 // Device addresses
 #define ISM330DHCX			((uint8_t) 0x6B << 1)
@@ -21,8 +20,14 @@
 
 
 /*
- * Initialization task
+ * Tasks for sensor initialization and data reading
  */
-void SensorInitTask(void *pvParameters);
+void InitTask(void *pvParameters);
+void MagnetometerTask(void *pvParameters);
+void AccelerometerTask(void *pvParameters);
+void GyroscopeTask(void *pvParameters);
+void parse_mag_data(uint8_t *rx_buf, int16_t *data);
+void parse_acc_data(uint8_t *rx_buf, int16_t *data);
+void parse_gyro_data(uint8_t *rx_buf, int16_t *data);
 
-#endif /* INC_ISM330DHCX_H_ */
+#endif /* INC_ISM330DHCX_H */

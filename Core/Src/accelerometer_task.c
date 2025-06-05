@@ -1,12 +1,9 @@
 #include <stdio.h>
-#include "imu_sensor.h"
-#include "accelerometer_task.h"
+#include "ism330dhcx.h"
 #include "i2c_task.h"
-#include "semphr.h"
 
 
 void AccelerometerTask(void *pvParameters) {
-    ImuSensor_t* imu = (ImuSensor_t*) pvParameters;
     TickType_t xLastWakeTime;
 
     printf("Accelerometer task started\r\n");
@@ -17,7 +14,7 @@ void AccelerometerTask(void *pvParameters) {
     int16_t acc_data[3] = {0};
 
     while (1) {
-        if(i2c_mem_read(ACC_ADDRESS, OUT_X_L_A | 0x80, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(100)) == HAL_OK) {
+        if(i2c_mem_read(ISM330DHCX, OUTX_L_A, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
             parse_acc_data(acc_rx_buf, acc_data);
             printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", acc_data[0], acc_data[1], acc_data[2]);
         } else {
