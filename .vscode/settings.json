@@ -20,6 +20,8 @@
         "type_traits": "c",
         "typeinfo": "c",
         "stdbool.h": "c",
-        "cstdint": "c"
+        "cstdint": "c",
+        "iis2mdc.h": "c",
+        "bager_buffer.h": "c"
     },
 }

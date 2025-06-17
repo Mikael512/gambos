@@ -3,8 +3,7 @@
 #include "ism330dhcx.h"
 #include "i2c_task.h"
 #include "logger_task.h"
-#include "accelerometer_task.h"
-#include "magnetometer_task.h"
+#include "iis2mdc.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -36,7 +35,7 @@ int main(void) {
     MX_I2C1_Init();
     MX_USART2_UART_Init();
 
-    // Initialize i2c queue and logger queue
+    // Initialize queues
     i2c_queue_init();
     logger_queue_init();
 
@@ -57,9 +56,13 @@ int main(void) {
     // if (result != pdPASS)
     //     printf("Failed to create Accelerometer Task\r\n");
 
-    // result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, NULL, 1, NULL);
+    // result = xTaskCreate(GyroscopeTask, "Gyroscope Task", 256, NULL, 1, NULL);
     // if (result != pdPASS)
-    //     printf("Failed to create Magnetometer Task\r\n");
+    //     printf("Failed to create Gyroscope Task\r\n");
+    
+    result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, NULL, 1, NULL);
+    if (result != pdPASS)
+        printf("Failed to create Magnetometer Task\r\n");
     
     //xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, NULL);
     //xTaskCreate(ImuProcessingTask, "Imu processing task", 128, NULL, 1, NULL);

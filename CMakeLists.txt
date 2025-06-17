@@ -52,6 +52,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/i2c_task.c
     Core/Src/accelerometer_task.c
     Core/Src/magnetometer_task.c
+    Core/Src/gyroscope_task.c
     Core/Src/logger_task.c
 )
 

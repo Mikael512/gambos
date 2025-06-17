@@ -5,6 +5,7 @@
 
 void GyroscopeTask(void *pvParameters) {
     TickType_t xLastWakeTime;
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     printf("Gyroscope task started\r\n");
 
@@ -16,7 +17,7 @@ void GyroscopeTask(void *pvParameters) {
     while (1) {
         if(i2c_mem_read(ISM330DHCX, OUTX_L_G, gyro_rx_buf, sizeof(gyro_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
             parse_gyro_data(gyro_rx_buf, gyro_data);
-            printf("Gyroscope data: X = %7d, Y = %7d, Z = %7d\r\n", gyro_data[0], gyro_data[1], gyro_data[2]);
+            // printf("Gyroscope data: X = %7d, Y = %7d, Z = %7d\r\n", gyro_data[0], gyro_data[1], gyro_data[2]);
         } else {
             printf("Failed to read Gyroscope data\r\n");
         }

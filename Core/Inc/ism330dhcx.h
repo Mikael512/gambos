@@ -1,10 +1,11 @@
 #ifndef INC_ISM330DHCX_H
 #define INC_ISM330DHCX_H
 
+#include "stm32f4xx_hal.h"
 
 // Device addresses
-#define ISM330DHCX			((uint8_t) 0x6B << 1)
-#define WHO_AM_I            ((uint8_t) 0x0F)        // outputs 0x6B
+#define ISM330DHCX			((uint8_t) 0x6A << 1)
+#define ISM330DHCX_WHOAMI   ((uint8_t) 0x0F)        // outputs 0x6B
 
 // Accelerometer registers
 #define CTRL1_XL			((uint8_t) 0x10) // write 0x40 for 104 Hz and 2g scale
@@ -23,10 +24,8 @@
  * Tasks for sensor initialization and data reading
  */
 void InitTask(void *pvParameters);
-void MagnetometerTask(void *pvParameters);
 void AccelerometerTask(void *pvParameters);
 void GyroscopeTask(void *pvParameters);
-void parse_mag_data(uint8_t *rx_buf, int16_t *data);
 void parse_acc_data(uint8_t *rx_buf, int16_t *data);
 void parse_gyro_data(uint8_t *rx_buf, int16_t *data);
 

@@ -5,6 +5,7 @@
 
 void AccelerometerTask(void *pvParameters) {
     TickType_t xLastWakeTime;
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     printf("Accelerometer task started\r\n");
 
@@ -16,7 +17,7 @@ void AccelerometerTask(void *pvParameters) {
     while (1) {
         if(i2c_mem_read(ISM330DHCX, OUTX_L_A, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
             parse_acc_data(acc_rx_buf, acc_data);
-            printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", acc_data[0], acc_data[1], acc_data[2]);
+            // printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", acc_data[0], acc_data[1], acc_data[2]);
         } else {
             printf("Failed to read Accelerometer data\r\n");
         }
