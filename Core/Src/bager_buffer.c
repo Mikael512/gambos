@@ -64,7 +64,7 @@ bool pop_data(bager_buffer_id_t id, uint32_t consumer_id, void *out_value) {
     circular_buffer_t *cb = &buf->buffer;
     uint32_t *tail = &buf->consumer_tails[consumer_id];
 
-    if (*tail >= cb->head) return false; // No new data
+    if (*tail >= cb->head) return false;
 
     uint32_t index = (*tail % bager_buffers[id].buffer.buffer_size);
     memcpy(out_value, cb->data + (index * cb->element_size), cb->element_size);
