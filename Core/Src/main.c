@@ -38,6 +38,7 @@ int main(void) {
     // Initialize queues
     i2c_queue_init();
     logger_queue_init();
+    init_bbuffers();
 
     BaseType_t result;
     result = xTaskCreate(LoggerTask, "Logger Task", 256, NULL, 1, NULL);
@@ -52,20 +53,22 @@ int main(void) {
     if (result != pdPASS)
         printf("Failed to create Init Task\r\n");
 
-    // result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, NULL, 1, NULL);
-    // if (result != pdPASS)
-    //     printf("Failed to create Accelerometer Task\r\n");
+    result = xTaskCreate(AccelerometerTask, "Accelerometer Task", 256, NULL, 1, NULL);
+    if (result != pdPASS)
+        printf("Failed to create Accelerometer Task\r\n");
 
-    // result = xTaskCreate(GyroscopeTask, "Gyroscope Task", 256, NULL, 1, NULL);
-    // if (result != pdPASS)
-    //     printf("Failed to create Gyroscope Task\r\n");
+    result = xTaskCreate(GyroscopeTask, "Gyroscope Task", 256, NULL, 1, NULL);
+    if (result != pdPASS)
+        printf("Failed to create Gyroscope Task\r\n");
     
     result = xTaskCreate(MagnetometerTask, "Magnetometer Task", 256, NULL, 1, NULL);
     if (result != pdPASS)
         printf("Failed to create Magnetometer Task\r\n");
-    
-    //xTaskCreate(GyroscopeTask, "Gyroscope task", 128, NULL, 1, NULL);
-    //xTaskCreate(ImuProcessingTask, "Imu processing task", 128, NULL, 1, NULL);
+
+    result = xTaskCreate(ImuProcessingTask, "Imu processing Task", 256, NULL, 1, NULL);
+    if (result != pdPASS)
+        printf("Failed to create Imu processing Task\r\n");
+ 
 
     /* Start scheduler */
     vTaskStartScheduler();

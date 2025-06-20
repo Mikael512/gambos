@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "ism330dhcx.h"
 #include "i2c_task.h"
+#include "bager_buffer.h"
 
 
 void AccelerometerTask(void *pvParameters) {
@@ -17,7 +18,9 @@ void AccelerometerTask(void *pvParameters) {
     while (1) {
         if(i2c_mem_read(ISM330DHCX, OUTX_L_A, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
             parse_acc_data(acc_rx_buf, acc_data);
+            push_data(BUFFER_ACC, );
             // printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", acc_data[0], acc_data[1], acc_data[2]);
+
         } else {
             printf("Failed to read Accelerometer data\r\n");
         }
