@@ -26,7 +26,6 @@
 void InitTask(void *pvParameters);
 void AccelerometerTask(void *pvParameters);
 void GyroscopeTask(void *pvParameters);
-void parse_acc_data(uint8_t *rx_buf, int16_t *data);
-void parse_gyro_data(uint8_t *rx_buf, int16_t *data);
+
 
 #endif /* INC_ISM330DHCX_H */

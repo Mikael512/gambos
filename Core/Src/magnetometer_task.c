@@ -1,7 +1,14 @@
 #include "iis2mdc.h"
 #include "i2c_task.h"
+#include "bager_buffer.h"
 #include <stdio.h>
 
+
+void parse_mag_data(uint8_t *rx_buf, int16_3d_t *data) {
+    data->x = (int16_t)((((int16_t)rx_buf[0]) << 8) | rx_buf[1]);
+    data->y = (int16_t)((((int16_t)rx_buf[2]) << 8) | rx_buf[3]);
+    data->z = (int16_t)((((int16_t)rx_buf[4]) << 8) | rx_buf[5]);
+}
 
 void MagnetometerTask(void *pvParameters) {
     TickType_t xLastWakeTime;
@@ -12,12 +19,13 @@ void MagnetometerTask(void *pvParameters) {
     xLastWakeTime = xTaskGetTickCount();
 
     uint8_t mag_rx_buf[6] = {0};
-    int16_t mag_data[3] = {0};
+    int16_3d_t mag_data = {0};
 
     while (1) {
         if(i2c_mem_read(IIS2MDC, OUTX_L_REG | 0x80, mag_rx_buf, sizeof(mag_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
-            parse_mag_data(mag_rx_buf, mag_data);
-            printf("Magnetometer data: X = %7d, Y = %7d, Z = %7d\r\n", mag_data[0], mag_data[1], mag_data[2]);
+            parse_mag_data(mag_rx_buf, &mag_data);
+            push_data(BUFFER_MAG, &mag_data);
+            // printf("Magnetometer data: X = %7d, Y = %7d, Z = %7d\r\n", mag_data[0], mag_data[1], mag_data[2]);
 
         } else {
             printf("Failed to read Magnetometer data\r\n");
@@ -27,8 +35,4 @@ void MagnetometerTask(void *pvParameters) {
     }
 }
 
-void parse_mag_data(uint8_t *rx_buf, int16_t *data) {
-    data[0] = (int16_t)((((int16_t)rx_buf[0]) << 8) | rx_buf[1]);
-    data[1] = (int16_t)((((int16_t)rx_buf[2]) << 8) | rx_buf[3]);
-    data[2] = (int16_t)((((int16_t)rx_buf[4]) << 8) | rx_buf[5]);
-}
+

@@ -18,6 +18,5 @@
  * Tasks for sensor data reading
  */
 void MagnetometerTask(void *pvParameters);
-void parse_mag_data(uint8_t *rx_buf, int16_t *data);
 
 #endif /* INC_IIS2MDC_H */

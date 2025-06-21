@@ -54,6 +54,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/magnetometer_task.c
     Core/Src/gyroscope_task.c
     Core/Src/logger_task.c
+    Core/Src/imu_processing_task.c
+    Core/Src/bager_buffer.c
 )
 
 # Add include paths

@@ -9,10 +9,6 @@
 // 5. Each consumer should have a unique ID
 // 6. Make sure to add the buffer in the init_bbuffers function
 
-// Custom data types
-typedef struct {
-    int16_t x, y, z;
-} int16_3d_t;
 
 // === MACRO TO DEFINE EACH BUFFER ===
 #define DEFINE_BUFFER(id, type, consumer_num, size)                             \
@@ -32,7 +28,7 @@ typedef struct {
         },                                                                      \
         .consumer_tails = (uint32_t *) id##_consumer_tails,                     \
         .consumer_number = consumer_num                                         \
-    };
+    }
 
 // Define all buffer instances 
 DEFINE_BUFFER(acc, int16_3d_t, 1, 8);

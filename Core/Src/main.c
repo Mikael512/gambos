@@ -3,6 +3,8 @@
 #include "ism330dhcx.h"
 #include "i2c_task.h"
 #include "logger_task.h"
+#include "imu_processing_task.h"
+#include "bager_buffer.h"
 #include "iis2mdc.h"
 #include "FreeRTOS.h"
 #include "task.h"

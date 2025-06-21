@@ -4,6 +4,12 @@
 #include "bager_buffer.h"
 
 
+void parse_acc_data(uint8_t *rx_buf, int16_3d_t *data)  {
+	data->x = (int16_t)((rx_buf[1] << 8) | rx_buf[0]);
+	data->y = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
+	data->z = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
+}
+
 void AccelerometerTask(void *pvParameters) {
     TickType_t xLastWakeTime;
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -13,12 +19,12 @@ void AccelerometerTask(void *pvParameters) {
     xLastWakeTime = xTaskGetTickCount();
 
     uint8_t acc_rx_buf[6] = {0};
-    int16_t acc_data[3] = {0};
+    int16_3d_t acc_data = {0};
 
     while (1) {
         if(i2c_mem_read(ISM330DHCX, OUTX_L_A, acc_rx_buf, sizeof(acc_rx_buf), pdMS_TO_TICKS(10)) == HAL_OK) {
-            parse_acc_data(acc_rx_buf, acc_data);
-            push_data(BUFFER_ACC, );
+            parse_acc_data(acc_rx_buf, &acc_data);
+            push_data(BUFFER_ACC, &acc_data);
             // printf("Accelerometer data: X = %7d, Y = %7d, Z = %7d\r\n", acc_data[0], acc_data[1], acc_data[2]);
 
         } else {
@@ -29,8 +35,3 @@ void AccelerometerTask(void *pvParameters) {
     }
 }
 
-void parse_acc_data(uint8_t *rx_buf, int16_t *data)  {
-	data[0] = (int16_t)((rx_buf[1] << 8) | rx_buf[0]);
-	data[1] = (int16_t)((rx_buf[3] << 8) | rx_buf[2]);
-	data[2] = (int16_t)((rx_buf[5] << 8) | rx_buf[4]);
-}
