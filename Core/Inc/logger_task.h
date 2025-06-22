@@ -1,5 +1,5 @@
-#ifndef INC_LOGGER_TASK_H_
-#define INC_LOGGER_TASK_H_
+#ifndef INC_LOGGER_TASK_H
+#define INC_LOGGER_TASK_H
 
 #include "FreeRTOS.h"
 #include <queue.h>
@@ -19,4 +19,4 @@ extern SemaphoreHandle_t dmaSemaphore;
 void LoggerTask(void *pvParameters);
 void logger_queue_init();
 
-#endif /* INC_LOGGER_TASK_H_ */
+#endif /* INC_LOGGER_TASK_H */

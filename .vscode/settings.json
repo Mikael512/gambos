@@ -14,6 +14,16 @@
         "i2c_task.h": "c",
         "semphr.h": "c",
         "queue.h": "c",
-        "magnetometer_task.h": "c"
+        "magnetometer_task.h": "c",
+        "ism330dhcx.h": "c",
+        "compare": "c",
+        "type_traits": "c",
+        "typeinfo": "c",
+        "stdbool.h": "c",
+        "cstdint": "c",
+        "iis2mdc.h": "c",
+        "bager_buffer.h": "c",
+        "imu_processing_task.h": "c",
+        "math.h": "c"
     },
 }

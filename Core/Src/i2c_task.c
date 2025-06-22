@@ -41,7 +41,7 @@ void I2cTask(void *pvParameters) {
                     break;
             }
             if(result != HAL_OK) {
-                printf("I2C operation failed: %d, HAL_I2C_GetError: 0x%lx\r\n", result, HAL_I2C_GetError(hi2c1));
+                printf("Request %p failed, I2C error: %d, HAL_I2C_GetError: %d\r\n",(void *)req, result, HAL_I2C_GetError(hi2c1));
                 req = NULL;
                 xSemaphoreGive(i2cSemaphore);
             }

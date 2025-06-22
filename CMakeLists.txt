@@ -48,11 +48,14 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    Core/Src/imu_sensor.c
+    Core/Src/init_task.c
     Core/Src/i2c_task.c
     Core/Src/accelerometer_task.c
     Core/Src/magnetometer_task.c
+    Core/Src/gyroscope_task.c
     Core/Src/logger_task.c
+    Core/Src/imu_processing_task.c
+    Core/Src/bager_buffer.c
 )
 
 # Add include paths
