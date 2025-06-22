@@ -23,6 +23,7 @@
         "cstdint": "c",
         "iis2mdc.h": "c",
         "bager_buffer.h": "c",
-        "imu_processing_task.h": "c"
+        "imu_processing_task.h": "c",
+        "math.h": "c"
     },
 }
