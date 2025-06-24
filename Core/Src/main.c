@@ -15,12 +15,14 @@
 I2C_HandleTypeDef hi2c1;
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_tx;
+TIM_HandleTypeDef htim2;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 
 
 int main(void) {
@@ -32,10 +34,13 @@ int main(void) {
     NVIC_SetPriorityGrouping(0);
 
     /* Initialize all configured peripherals */
+    MX_TIM2_Init();
     MX_GPIO_Init();
     MX_DMA_Init();
     MX_I2C1_Init();
     MX_USART2_UART_Init();
+   
+    HAL_TIM_Base_Start(&htim2);  // Start TIM2, measures microseconds
 
     // Initialize queues
     i2c_queue_init();
@@ -43,7 +48,7 @@ int main(void) {
     init_bbuffers();
 
     BaseType_t result;
-    result = xTaskCreate(LoggerTask, "Logger Task", 256, NULL, 1, NULL);
+    result = xTaskCreate(LoggerTask, "Logger Task", 256, &htim2, 1, NULL);
     if (result != pdPASS)
         printf("Failed to create Logger Task\r\n");
 
@@ -202,6 +207,35 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+}
+
+static void MX_TIM2_Init(void) {
+    __HAL_RCC_TIM2_CLK_ENABLE();
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = 83;
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 4294967295;
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
+        Error_Handler();
+    }
+
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    
+    if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK) {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
+        Error_Handler();
+    }
 }
 
 /**

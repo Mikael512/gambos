@@ -41,7 +41,8 @@ void I2cTask(void *pvParameters) {
                     break;
             }
             if(result != HAL_OK) {
-                printf("Request %p failed, I2C error: %d, HAL_I2C_GetError: %d\r\n",(void *)req, result, HAL_I2C_GetError(hi2c1));
+                printf("Request %p failed, I2C error: %d, HAL_I2C_GetError: %lu\r\n", (void *)req, result, HAL_I2C_GetError(hi2c1));
+
                 req = NULL;
                 xSemaphoreGive(i2cSemaphore);
             }
@@ -133,6 +134,7 @@ void i2c_queue_init() {
 
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    (void)hi2c;
 	// printf("I2C Rx Complete\r\n");
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
@@ -148,6 +150,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    (void)hi2c;
     // printf("I2C Tx Complete\r\n");
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
