@@ -13,6 +13,13 @@
 #define OUTX_L_REG			((uint8_t) 0x68)
 #define OUTY_L_REG			((uint8_t) 0x6A)
 #define OUTZ_L_REG			((uint8_t) 0x6C)
+#define OFFSET_X_REG_L      ((uint8_t) 0x45)
+#define OFFSET_X_REG_H      ((uint8_t) 0x46)
+#define OFFSET_Y_REG_L      ((uint8_t) 0x47)
+#define OFFSET_Y_REG_H      ((uint8_t) 0x48)
+#define OFFSET_Z_REG_L      ((uint8_t) 0x49)
+#define OFFSET_Z_REG_H      ((uint8_t) 0x4A)
+
 
 /*
  * Tasks for sensor data reading

@@ -5,9 +5,9 @@
 
 
 void parse_mag_data(uint8_t *rx_buf, int16_3d_t *data) {
-    data->x = (int16_t)((((int16_t)rx_buf[0]) << 8) | rx_buf[1]);
-    data->y = (int16_t)((((int16_t)rx_buf[2]) << 8) | rx_buf[3]);
-    data->z = (int16_t)((((int16_t)rx_buf[4]) << 8) | rx_buf[5]);
+    data->x = (int16_t)((((int16_t)rx_buf[1]) << 8) | rx_buf[0]);
+    data->y = (int16_t)((((int16_t)rx_buf[3]) << 8) | rx_buf[2]);
+    data->z = (int16_t)((((int16_t)rx_buf[5]) << 8) | rx_buf[4]);
 }
 
 void MagnetometerTask(void *pvParameters) {
