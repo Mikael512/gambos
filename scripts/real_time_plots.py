@@ -10,7 +10,11 @@ import time
 SERIAL_PORT = '/dev/ttyACM0'  # Change to your port
 BAUD_RATE = 115200
 MAX_POINTS = 200
-ALPHA = 0.98  # complementary filter coefficient
+
+ALPHA_ROLL = 0.9  # complementary filter coefficient for roll, trust gyro
+ALPHA_PITCH = 0.98  # complementary filter coefficient for pitch, trust gyro
+ALPHA_YAW = 0.9  # complementary filter coefficient for yaw, trust gyro
+
 WINDOW_SECONDS = 10  # time window for x-axis in seconds
 
 # === Regex for parsing lines with timestamp and sensor data ===
@@ -48,7 +52,7 @@ def complementary_filter(dt, acc, gyro, mag, prev_roll, prev_pitch, prev_yaw):
     gz = gyro['z'] / GYRO_SENSITIVITY * (math.pi / 180.0)
 
     # Acc angles
-    acc_roll = math.atan2(acc['y'], acc['z'])
+    acc_roll = math.atan2(acc['y'], math.sqrt(acc['x']**2 + acc['z']**2))
     acc_pitch = math.atan2(-acc['x'], math.sqrt(acc['y']**2 + acc['z']**2))
 
     # Integrate gyro
@@ -56,9 +60,8 @@ def complementary_filter(dt, acc, gyro, mag, prev_roll, prev_pitch, prev_yaw):
     gyro_pitch = prev_pitch + gy * dt
     gyro_yaw = prev_yaw + gz * dt
 
-    # Complementary filter for roll and pitch
-    roll = ALPHA * gyro_roll + (1 - ALPHA) * acc_roll
-    pitch = ALPHA * gyro_pitch + (1 - ALPHA) * acc_pitch
+    roll = ALPHA_ROLL * gyro_roll + (1 - ALPHA_ROLL) * acc_roll
+    pitch = ALPHA_PITCH * gyro_pitch + (1 - ALPHA_PITCH) * acc_pitch
 
     # Normalize magnetometer
     norm = math.sqrt(mag['x']**2 + mag['y']**2 + mag['z']**2)
@@ -76,8 +79,9 @@ def complementary_filter(dt, acc, gyro, mag, prev_roll, prev_pitch, prev_yaw):
 
     mag_yaw = math.atan2(-mag_y_comp, mag_x_comp)
 
-    # Complementary filter for yaw
-    yaw = ALPHA * gyro_yaw + (1 - ALPHA) * mag_yaw
+    # Complementary filter
+    
+    yaw = ALPHA_YAW * gyro_yaw + (1 - ALPHA_YAW) * mag_yaw
 
     return roll, pitch, yaw
 
