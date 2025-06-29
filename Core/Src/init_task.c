@@ -19,15 +19,16 @@ void InitTask(void *pvParameters) {
     // [Hard Iron Bias] X: 0.0758, Y: -0.0547, Z: 0.0967
     // Hard iron bias for X: 0.0758 --> raw value: 0.0758 / 0.0015 = 50 = 0x0032
     uint8_t mag_hard_offset_x[2] = {0x32, 0x00};
-    i2c_mem_write(IIS2MDC, OFFSET_X_REG_L | 0x80, mag_hard_offset_x, 2, pdMS_TO_TICKS(100));
+    uint8_t zero[2] = {0x00, 0x00};
+    i2c_mem_write(IIS2MDC, OFFSET_X_REG_L | 0x80, zero, 2, pdMS_TO_TICKS(100));
 
     // Hard iron bias for Y: -0.0547 --> raw value: -0.0547 / 0.0015 = -36 = 0xFFDC
     uint8_t mag_hard_offset_y[2] = {0xDC, 0xFF};
-    i2c_mem_write(IIS2MDC, OFFSET_Y_REG_L | 0x80, mag_hard_offset_y, 2, pdMS_TO_TICKS(100));
+    i2c_mem_write(IIS2MDC, OFFSET_Y_REG_L | 0x80, zero, 2, pdMS_TO_TICKS(100));
 
     // Hard iron bias for Z: 0.0967 --> raw value: 0.0967 / 0.0015 = 64 = 0x0040
     uint8_t mag_hard_offset_z[2] = {0x40, 0x00};
-    i2c_mem_write(IIS2MDC, OFFSET_Z_REG_L | 0x80, mag_hard_offset_z, 2, pdMS_TO_TICKS(100));
+    i2c_mem_write(IIS2MDC, OFFSET_Z_REG_L | 0x80, zero, 2, pdMS_TO_TICKS(100));
 
     // Magnetometer to 50 Hz ODR, temperature compensation, continuous mode
     uint8_t mag_cfga = 0x88;
